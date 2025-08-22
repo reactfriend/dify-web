@@ -1,11 +1,17 @@
+/* 1. 所有@import语句（包括主题、组件CSS） */
 @import "preflight.css";
-@tailwind base;
-@tailwind components;
-
 @import '../../themes/light.css';
 @import '../../themes/dark.css';
 @import "../../themes/manual-light.css";
 @import "../../themes/manual-dark.css";
+@import "../components/base/button/index.css";
+@import "../components/base/action-button/index.css";
+@import "../components/base/modal/index.css";
+
+/* 2. Tailwind指令（生成基础样式，需在@import之后） */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 html {
   color-scheme: light;
@@ -679,12 +685,6 @@ button:focus-within {
 [data-theme="light"] [data-hide-on-theme="light"] {
   display: none;
 }
-
-@import "../components/base/button/index.css";
-@import "../components/base/action-button/index.css";
-@import "../components/base/modal/index.css";
-
-@tailwind utilities;
 
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */

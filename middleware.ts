@@ -19,8 +19,18 @@ export function middleware(request: NextRequest) {
       headers: requestHeaders,
     },
   })
-
   const isWhiteListEnabled = !!process.env.NEXT_PUBLIC_CSP_WHITELIST && process.env.NODE_ENV === 'production'
+  if (process.env.NEXT_PUBLIC_DEPLOY_ENV === 'DEV') {
+    // 仅处理代理路径
+    if (request.nextUrl.pathname.startsWith('/console/api')) {
+      const targetBase = 'https://zh.fgw.sz.gov.cn';
+      const targetPath = request.nextUrl.pathname.replace('/console/api', '/tzspdmx/dify/console/api');
+      const targetUrl = new URL(targetPath, targetBase);
+      request.nextUrl.searchParams.forEach((v, k) => targetUrl.searchParams.append(k, v));
+      return NextResponse.rewrite(targetUrl);
+    }
+    return NextResponse.next();
+  }
   if (!isWhiteListEnabled)
     return wrapResponseWithXFrameOptions(response, pathname)
 
@@ -60,27 +70,9 @@ export function middleware(request: NextRequest) {
     'Content-Security-Policy',
     contentSecurityPolicyHeaderValue,
   )
-
   return wrapResponseWithXFrameOptions(response, pathname)
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    {
-      // source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
-      source: '/((?!_next/static|_next/image|favicon.ico).*)',
-      // source: '/(.*)',
-      // missing: [
-      //   { type: 'header', key: 'next-router-prefetch' },
-      //   { type: 'header', key: 'purpose', value: 'prefetch' },
-      // ],
-    },
-  ],
+  matcher: '/console/api/:path*',
 }
